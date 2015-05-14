@@ -8,6 +8,7 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+var fs = require('fs');
 
 var app = express();
 
@@ -72,26 +73,39 @@ app.get('/register/:username/:password', function(req,res) {
 app.get('/getPhotos/:username', function (req, res) {
   // request should send username
   // function should find all of the
-  // images share by the username and
+  // images shared by the username and
   // its friends and then send them to the user
 });
 
-app.get('/addPhoto/:username', function (req, res) {
-  // A user aded a photo
+app.post('/upload', function(req, res) {
+  console.log(req.files.image.originalFilename);
+  console.log(req.files.image.path);
+    fs.readFile(req.files.image.path, function (err, data){
+    var dirname = __dirname + "\\public\\images";
+    var newPath = dirname + req.files.image.originalFilename;
+    fs.writeFile(newPath, data, function (err) {
+    if(err){
+    res.json({'response':"Error"});
+    }else {
+    res.json({'response':"Saved"});     
+}
+});
+});
 });
 
-app.get('/friReqSend/:sender/:receiver', function (req, res) {
-  // A user added another user as its friend
-});
-
-app.get('/friReqAccepted/:sender/:receiver', function (req, res) {
-  // A user accepted friend request of another
+app.get('/getPhoto/:file', function (req, res) {
+  var file = req.params.file;
+  var directory = __dirname + "\\public\\images\\" + "\\" + file;
+  var img = fs.readFileSync(directory);
+  
+  res.writeHead(200, {'Content-Type': 'image/jpg' });
+  res.end(img, 'binary');
 });
 
 var terminateServer=function(){
   httpserver.close();
   console.log("Server terminated!");
   process.exit();
-}
+};
 process.on('SIGTERM',terminateServer);
 process.on('SIGINT',terminateServer);

@@ -12,7 +12,7 @@ var connectionConfig={
     'host':'localhost',
     'database':'instashare',
     'user':'root',
-    'password':'',
+    'password':'root',
     'connectionLimit':100
 };    
 var connectionPool=mysql.createPool(connectionConfig);
