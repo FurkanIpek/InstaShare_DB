@@ -9,6 +9,7 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 var fs = require('fs');
+var multer = require('multer');
 
 var app = express();
 
@@ -24,6 +25,8 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+
+//app.use(multer({ dest: './uploads/'}))
 
 // development only
 if ('development' == app.get('env')) {
@@ -54,17 +57,19 @@ app.get('/',function(req,res){
   
 });
 
-app.get('/login/:username/:password', function(req, res) {
-  var ID   = req.params.username;
-  var pass = req.params.password;
+
+app.post('/login', function(req, res) {
+  var ID   = req.body.username;
+  var pass = req.body.password;
   
   // Following function also send corresponding answers to res
   DB.checkCredentials(ID, pass, req, res);
 });
 
-app.get('/register/:username/:password', function(req,res) {
-  var ID   = req.params.username;
-  var pass = req.params.password;
+
+app.post('/register', function(req,res) {
+  var ID   = req.body.username;
+  var pass = req.body.password;
   
   // Following function also send corresponding answers to res
   DB.registerUser(ID, pass, req, res);
@@ -80,17 +85,24 @@ app.get('/getPhotos/:username', function (req, res) {
 app.post('/upload', function(req, res) {
   console.log(req.files.image.originalFilename);
   console.log(req.files.image.path);
-    fs.readFile(req.files.image.path, function (err, data){
-    var dirname = __dirname + "\\public\\images";
+  
+  console.log("Trying to receive\n");
+  
+  fs.readFile(req.files.image.path, function (err, data) {
+   
+    var dirname = __dirname + "\\public\\images\\" + req.files;
     var newPath = dirname + req.files.image.originalFilename;
+    
     fs.writeFile(newPath, data, function (err) {
-    if(err){
-    res.json({'response':"Error"});
-    }else {
-    res.json({'response':"Saved"});     
-}
-});
-});
+      
+      if ( err ) {
+        res.json({'response' : false});
+      }
+      else {
+        res.json({'response' : true});     
+      }
+    });
+  });
 });
 
 app.get('/getPhoto/:file', function (req, res) {
