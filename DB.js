@@ -97,5 +97,44 @@ module.exports =
           
         });
       });   
-    }
+    },
+    
+  addImageURL: function (ID, path) {
+      
+      connectionPool.getConnection(function(err,connection) {
+      
+       if (err) {
+         connection.release();
+         res.json({"code" : 400, "status" : "Error accessing database!"});
+         return;
+         }
+
+        console.log('connected as id ' + connection.threadId);
+        
+        var userIDquery = 'SELECT id FROM users WHERE username = ' + connection.escape(ID);
+        var user_id = 0;
+        
+        connection.query(userIDquery, function(err, rows, fields) {
+          
+      	  if ( !err ) {
+            user_id = rows[0].id;
+            
+            var query = 'INSERT INTO images SET id = ' + connection.escape(user_id) + ', url = ' + connection.escape(path);
+            
+            console.log("\n\n" + userIDquery + "\n" + query);
+        
+            connection.query(query, function(err, rows, fields) {
+            	  connection.release();
+                
+            	  if ( !err ) {
+                  console.log("Inserted");
+                  return;
+            	  }
+            
+            });
+          }
+          
+        });
+    });
+  }
 };

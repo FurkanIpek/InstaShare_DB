@@ -8,10 +8,16 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
-var fs = require('fs');
-var multer = require('multer');
+//var fs = require('fs');
+var fs = require('fs-extra');
+var formidable = require('formidable');
+var util = require('util');
+var multer  = require('multer');
 
 var app = express();
+
+
+app.use(express.bodyParser({uploadDir:'./uploads'}));
 
 // all environments
 app.set('port', process.env.PORT || 8080);
@@ -25,8 +31,6 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
-
-//app.use(multer({ dest: './uploads/'}))
 
 // development only
 if ('development' == app.get('env')) {
@@ -50,11 +54,46 @@ var httpserver=http.createServer(app);
 // usage: DB.handle_database_request(req,res,query)
 var DB = require('./DB.js');
 
+// CREATE A NEW FİLE İN İMAGES FOR EACH NEW USER
+var mkdirSync = function (path) {
+  try {
+    fs.mkdirSync(path);
+  } catch(e) {
+    if ( e.code != 'EEXIST' ) throw e;
+  }
+}
+
 // Routing
 app.get('/',function(req,res){
    res.set('Content-Type','application/json'); 
    res.send({"code":300,"status":"Server up and running!"});
   
+});
+
+
+app.post('/upload/:username', function (req, res){
+  //console.log(req.body);
+  console.log(req.files);
+  
+  var ID = req.params.username;
+  console.log(ID);
+  
+  var tmp_path = req.files.file.path;
+  var target_path = './public/images/' + ID + "/" + req.files.file.name;
+  
+  console.log(tmp_path + '\n' + target_path);
+  
+  fs.rename(tmp_path, target_path, function(err) {
+        if (err) throw err;
+        // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+        fs.unlink(tmp_path, function() {
+            if (err) throw err;
+        });
+    });
+    
+  DB.addImageURL(ID, target_path);
+  
+  res.send({'Response': true});
 });
 
 
@@ -71,47 +110,11 @@ app.post('/register', function(req,res) {
   var ID   = req.body.username;
   var pass = req.body.password;
   
+  // create an image directory for the user
+  mkdirSync('./public/images/' + ID);
+  
   // Following function also send corresponding answers to res
   DB.registerUser(ID, pass, req, res);
-});
-
-app.get('/getPhotos/:username', function (req, res) {
-  // request should send username
-  // function should find all of the
-  // images shared by the username and
-  // its friends and then send them to the user
-});
-
-app.post('/upload', function(req, res) {
-  console.log(req.files.image.originalFilename);
-  console.log(req.files.image.path);
-  
-  console.log("Trying to receive\n");
-  
-  fs.readFile(req.files.image.path, function (err, data) {
-   
-    var dirname = __dirname + "\\public\\images\\" + req.files;
-    var newPath = dirname + req.files.image.originalFilename;
-    
-    fs.writeFile(newPath, data, function (err) {
-      
-      if ( err ) {
-        res.json({'response' : false});
-      }
-      else {
-        res.json({'response' : true});     
-      }
-    });
-  });
-});
-
-app.get('/getPhoto/:file', function (req, res) {
-  var file = req.params.file;
-  var directory = __dirname + "\\public\\images\\" + "\\" + file;
-  var img = fs.readFileSync(directory);
-  
-  res.writeHead(200, {'Content-Type': 'image/jpg' });
-  res.end(img, 'binary');
 });
 
 var terminateServer=function(){
