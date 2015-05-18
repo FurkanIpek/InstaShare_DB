@@ -37,7 +37,7 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
+//app.get('/', routes.index);
 app.get('/users', user.list);
 
 
@@ -54,7 +54,7 @@ var httpserver=http.createServer(app);
 // usage: DB.handle_database_request(req,res,query)
 var DB = require('./DB.js');
 
-// CREATE A NEW FİLE İN İMAGES FOR EACH NEW USER
+// Create a new file in /public/images for each registered user
 var mkdirSync = function (path) {
   try {
     fs.mkdirSync(path);
@@ -116,6 +116,12 @@ app.post('/register', function(req,res) {
   // Following function also send corresponding answers to res
   DB.registerUser(ID, pass, req, res);
 });
+
+
+app.get('/getPhotos/:username', function (req, res) {
+     DB.getPhotos(req.params.username,req,res);
+});
+
 
 var terminateServer=function(){
   httpserver.close();
