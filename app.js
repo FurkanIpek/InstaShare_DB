@@ -128,6 +128,18 @@ app.get('/getPhotos/:username', function (req, res) {
 });
 
 
+app.get('/public/images/:username/:image', function (req, res) {
+  
+  console.log(req.params.username + " " + req.params.image);
+  // sendFile here doesn't work
+   var URL = __dirname + "\\public\\images\\" + req.params.username + "\\" + req.params.image;
+   
+   console.log(URL);
+   
+   res.sendFile(URL);
+});
+
+
 var terminateServer=function(){
   httpserver.close();
   console.log("Server terminated!");

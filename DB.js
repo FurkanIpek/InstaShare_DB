@@ -163,28 +163,12 @@ module.exports =
       	  if ( !err ) {
             
             var URL_array = [];
-            var JSON_string = "'URLs': [" ;
 				
     				for(var i = 0; i< rows.length;i++){
-              JSON_string += "{'url': '" + rows[i].url
-                          + "', 'date': '" + rows[i].date
-                          + "', 'username': '" + rows[i].username + "'}";
-              if ( i+1 != URL_array.length ) 
-                JSON_string += ", ";
-                
+
     					URL_array.push({url: rows[i].url, date: rows[i].date, username: rows[i].username});
     				}
-            JSON_string += "]";
-            
-            /*
-            
-            for ( var i = 0; i < URL_array.length; i++ ) {
-              JSON_string += i + " : \'" + URL_array[i] + "\'";
-              
-              if ( i+1 != URL_array.length ) 
-                JSON_string += ", ";
-            }*/
-            
+           
             console.log({URLs: JSON.stringify(URL_array)});
             res.contentType('application/json');
             res.send({URLs: URL_array});
