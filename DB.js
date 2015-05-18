@@ -149,9 +149,15 @@ module.exports =
 
         console.log('connected as id ' + connection.threadId);
         
-        var photoQuery = 
-              'SELECT * FROM images i ,users u WHERE i.id = u.id AND  u.username = ' + connection.escape(username);
+        var photoQuery = "";
         
+        if ( username != "" )
+          photoQuery = 
+              'SELECT * FROM images i ,users u WHERE i.id = u.id AND  u.username = ' + connection.escape(username);
+        else // else pick up every image in the db with its corresponding values
+          photoQuery = 
+              'SELECT * FROM images i ,users u';
+              
         connection.query(photoQuery, function(err, rows, fields) {
           
       	  if ( !err ) {
@@ -179,9 +185,9 @@ module.exports =
                 JSON_string += ", ";
             }*/
             
-            console.log(JSON.stringify(JSON_string));
+            console.log({URLs: JSON.stringify(URL_array)});
             res.contentType('application/json');
-            res.send("URLs: " + JSON.stringify(URL_array));
+            res.send({URLs: URL_array});
     				connection.release();
           }
           

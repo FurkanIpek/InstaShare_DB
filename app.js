@@ -118,6 +118,11 @@ app.post('/register', function(req,res) {
 });
 
 
+app.get('/getPhotos/', function (req, res) {
+     DB.getPhotos("",req,res);
+});
+
+
 app.get('/getPhotos/:username', function (req, res) {
      DB.getPhotos(req.params.username,req,res);
 });
