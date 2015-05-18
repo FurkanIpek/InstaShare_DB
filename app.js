@@ -136,7 +136,7 @@ app.get('/public/images/:username/:image', function (req, res) {
    
    console.log(URL);
    
-   res.sendFile(URL);
+   res.sendfile(URL);
 });
 
 
