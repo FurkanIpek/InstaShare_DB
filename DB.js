@@ -156,7 +156,7 @@ module.exports =
               'SELECT * FROM images i ,users u WHERE i.id = u.id AND  u.username = ' + connection.escape(username);
         else // else pick up every image in the db with its corresponding values
           photoQuery = 
-              'SELECT * FROM images i ,users u';
+              'SELECT DISTINCT * FROM images i ,users u WHERE i.id = u.id ORDER BY i.date DESC';
               
         connection.query(photoQuery, function(err, rows, fields) {
           
