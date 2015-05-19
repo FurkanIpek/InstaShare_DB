@@ -13,6 +13,7 @@ var fs = require('fs-extra');
 var formidable = require('formidable');
 var util = require('util');
 var multer  = require('multer');
+var gm = require ('gm');
 
 var app = express();
 
@@ -94,6 +95,15 @@ app.post('/upload/:username', function (req, res){
   DB.addImageURL(ID, target_path);
   
   res.send({'Response': true});
+  
+  gm(__dirname + target_path)
+  .resize('49', '49')
+  .gravity('Center')
+  .crop('200', '200')
+  .write('./public/images/' + ID, function (err) {
+    if (!err) console.log(' hooray! ');
+  });
+  
 });
 
 
