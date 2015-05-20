@@ -13,12 +13,14 @@ var fs = require('fs-extra');
 var formidable = require('formidable');
 var util = require('util');
 var multer  = require('multer');
-var gm = require ('gm');
+var im = require ('imagemagick');
+var easyimg = require('easyimage');
 
 var app = express();
 
 
 app.use(express.bodyParser({uploadDir:'./uploads'}));
+//app.use(express.bodyParser({uploadDir:''}));
 
 // all environments
 app.set('port', process.env.PORT || 8080);
@@ -96,13 +98,17 @@ app.post('/upload/:username', function (req, res){
   
   res.send({'Response': true});
   
-  gm(__dirname + target_path)
-  .resize('49', '49')
-  .gravity('Center')
-  .crop('200', '200')
-  .write('./public/images/' + ID, function (err) {
-    if (!err) console.log(' hooray! ');
-  });
+  easyimg.resize(
+    {
+        src: target_path, dst: target_path,
+        width:256, height:256,
+        gravity:'Center'
+    },
+    function(err, stdout, stderr) {
+        if (err) throw err;
+        console.log('Resized and cropped');
+    }
+);
   
 });
 
