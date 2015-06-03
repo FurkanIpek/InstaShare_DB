@@ -1,6 +1,6 @@
 # InstaShare_DB
 
-A REST API for a course project(yavuzs:InstaShare). 
+A REST API for a course project, InstaShare(see my repositories). 
 
 - Can register a user,
 
